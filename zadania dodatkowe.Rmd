@@ -1,0 +1,284 @@
+1. Do zmiennej wynik przypisz wartość wyrażenia sqrt((2+517)*1.23).
+
+```{r}
+
+wynik <- sqrt((2+517)*1.23)
+```
+
+2. W zbiorze danych koty_ptaki w kolumnie predkosc znajduje się maksymalna prędkość rozwijana przez gatunek w kilometrach na godzinę.
+
+Używajac funkcji ifelse() do zmiennej wynik przypisz wektor 13 napisów z wartościami szybki i wolny w zależności od tego czy zwierze jest szybsze niż 99 km/h czy nie.
+
+```{r}
+
+library(PogromcyDanych)
+wynik_2 <- ifelse(koty_ptaki$predkosc > 99, "szybki", "wolny")
+wynik_2
+```
+
+3. Używając funkcji filter() wybierz ze zbioru danych koty_ptaki tylko zwierzęta o długości ponad 1 metr. Przypisz tę nową ramkę danych do zmiennej wynik.
+
+Nie zapomnij w tym rozwiązaniu najpierw włączyć pakiet dplyr.
+
+```{r}
+
+library(dplyr)
+wynik_3 <- koty_ptaki %>% filter(dlugosc > 1)
+wynik_3
+```
+
+4. Użyj funkcji arrange(), aby uporządkować wiersze w zbiorze danych koty_ptaki rosnąco zgodnie z prędkością. Przypisz tą nową ramkę danych do zmiennej wynik.
+
+Nie zapomnij w tym rozwiązaniu najpierw włączyć pakiet dplyr.
+```{r}
+
+wynik_4 <- koty_ptaki %>% arrange(predkosc)
+wynik_4
+```
+
+5. W zbiorze danych auta2012 w kolumnie Marka znajdują się nazwy marek oferowanych do sprzedaży samochodów.
+
+Zbuduj wektor nazw marek samochodów i przypisz go 
+do zmiennej wynik.
+
+```{r}
+
+wynik_5 <- unique(auta2012$Marka)
+wynik_5
+```
+
+6. W zbiorze danych auta2012 w kolumnie Wyposazenie.dodatkowe po przecinku wypisane są elementy wyposażenia auta.
+
+Jeżeli auto ma klimatyzację to w tej kolumnie znajduje się napis klimatyzacja. Sprawdź jak wiele aut ma klimatyzację.
+
+Wyznacz macierz kontyngencji (tabelę o dwóch wartościach, czy auto ma klimatyzację FALSE/TRUE) i zapisz ją do zmiennej wynik.
+
+```{r}
+
+auta2012_klima <- auta2012 %>% 
+  mutate(z_klima = grepl("klimatyzacja", auta2012$Wyposazenie.dodatkowe)) %>% 
+  select(z_klima)
+wynik_6 <- table(auta2012_klima)
+wynik_6
+```
+
+7. Ze zbioru danych auta2012 wybierz tylko auta marki Volkswagen.
+
+Następnie średnią cenę w PLN wybranych samochodów przypisz do zmiennej wynikCena a średni przebieg (po usunięciu obserwacji brakujących) przypisz do zmiennej wynikPrzebieg.
+
+```{r}
+
+wynik_7 <- auta2012 %>%
+  filter(Marka == "Volkswagen") %>% 
+  summarise(wynikCena = mean(Cena.w.PLN),
+            wynikPrzebieg = mean(Przebieg.w.km, na.rm=T))
+wynik_7
+```
+
+8. Używając funkcji z pakietu dplyr wyznacz średnią cenę dla różnych marek bazując na zbiorze danych auta2012.
+
+W pierwszym kroku pogrupuj dane ze względu na zmienną Marka, a następnie w każdej grupie wyznacz średnią cenę (Cena.w.PLN) i przypisz ją do kolumny srednia w wynikowej tabeli.
+
+Wynikiem, zapisanym do zmiennej wynik powinna być ramka danych z dwiema kolumnami - Marka i srednia, z nazwą marki i średnią ceną ogłoszeń tej marki.
+
+```{r}
+
+wynik_8 <- auta2012 %>% 
+  group_by(Marka) %>% 
+  summarise(srednia = mean(Cena.w.PLN))
+wynik_8
+```
+
+9.Ze zbioru danych auta2012 (pakiet PogromcyDanych) wybierz tylko auta marki Volkswagen.
+
+Następnie funkcją table() wyznacz tablicę kontyngencji dla zmiennej Rodzaj.paliwa i przypisz tę tabelę do zmiennej wynik.
+
+```{r}
+Volks <- auta2012 %>% 
+  filter(Marka == "Volkswagen")
+wynik_9 <- table(Volks$Rodzaj.paliwa)
+wynik_9
+```
+
+10. Napisz funkcję, która przyjmuje jeden argument o nazwie marka a jako wynik zwraca frakcje aut tej marki, które są wyposażone w klimatyzację. Ułamek (frakcja) jest wyznaczana na bazie zbioru danych auta2012.
+
+Zapisz tę funkcje pod nazwą procKlima.
+
+Przykładowo, dla wywołania procKlima('Toyota') funkcja powinna zwrócić jako wynik 0.8150775.
+
+```{r}
+procKlima <- function(marka)
+{
+car <- auta2012 %>% 
+  mutate(z_klima = grepl("klimatyzacja", Wyposazenie.dodatkowe)) %>% 
+  filter(Marka == marka, z_klima == T)
+
+wynik_10 <- auta2012 %>% 
+  filter(Marka == marka) %>% 
+  summarise(frakcja = tally(car)/n())
+wynik_10
+}
+procKlima("Toyota")
+```
+
+11. Ze zbioru danych auta2012 wybierz tylko samochody Toyota w modelu Corolla.
+
+Wybierz kolumnę Cena.w.PLN z tych danych a następnie policz dla niej wartość pierwszego i trzeciego kwartyla.
+
+Wartość pierwszego kwartyla ceny zapisz do zmiennej Q1 a wartość trzeciego kwartyla ceny zapisz do zmiennej Q3.
+
+```{r}
+
+wynik_11 <- auta2012 %>% 
+  filter(Marka == "Toyota", Model == "Corolla") %>% 
+  select(Cena.w.PLN) %>% 
+  summarise(Q1 = quantile(Cena.w.PLN, .25),
+            Q3 = quantile(Cena.w.PLN, .75))
+wynik_11
+```
+
+12. Ze zbioru danych auta2012 wybierz samochody w marce Toyota. Następnie pogrupuj je (np. funkcją group_by) po modelu oraz dla każdego modelu policz średnią cenę (zmienna Cena.w.PLN). Średnią cenę zapisz do kolumny srednia
+
+Tak wyznaczoną ramkę z kolumna opisującą model oraz kolumną opisującą średnią cenę tego modelu posortuj po średniej cenie (np. funkcją arrange()), tak by najdroższe modele były na górze a najtańsze na dole.
+
+Wynikową ramkę danych przypisz do zmiennej wynik.
+
+```{r}
+
+wynik_12 <- auta2012 %>%
+  filter(Marka == "Toyota") %>% 
+  group_by(Model) %>% 
+  summarise(srednia = mean(Cena.w.PLN))
+wynik_12
+```
+
+13. Pod adresem http://biecek.pl/R/dane/daneO.csv znajduje się zbiór danych, w którego pierwszej kolumnie znajduje się zmienna Wiek. Wczytaj te dane bezpośrednio z adresu URL, a następnie policz średnią wartość z kolumny Wiek i przypisz do zmiennej srWiek.
+
+```{r}
+
+dane0 <- read.table("http://biecek.pl/R/dane/daneO.csv",
+                    sep = ";", header = T)
+wynik_13 <- dane0 %>% 
+  select(Wiek) %>% 
+  summarise(srWiek = mean(Wiek))
+wynik_13
+```
+
+14. Dla zbioru danych koty_ptaki z pakiety PogromcyDanych policz maksymalną prędkość dla każdej grupy opisanej przez zmienną druzyna.
+
+Maksymalne prędkości przypisz do zmiennej maxPredkosc.
+
+Wynik, który będzie ramką danych z kolumną maxPredkosc oraz dwoma wierszami, jednym dla kotów i jednym dla ptaków, przypisz do zmiennej wynik.
+
+```{r}
+
+wynik_14 <- koty_ptaki %>%
+  group_by(druzyna) %>% 
+  summarise(maxPredkosc = max(predkosc))
+wynik_14
+```
+
+15. Ze zbioru danych auta2012 wybierz Volkswageny Passaty z rocznika 2006.
+
+Dla tak wybranych ofert sprzedaży policz średnią cenę (zmienna Cena.w.PLN) i przypisz ją do zmiennej srCena.
+
+Policz też jaka część z tych wybranych aut (tylko wybranych powyżej) ma cenę (zmienna Cena.w.PLN) niższą lub równą 35 tysiącom PLN i przypisz tę wartość do zmiennej frakcja.
+
+```{r}
+
+tanie <- auta2012 %>% 
+  filter(Marka == "Volkswagen", Model == "Passat", Rok.produkcji == 2006, Cena.w.PLN <= 35000)
+
+wynik_15 <- auta2012 %>% 
+  filter(Marka == "Volkswagen", Model == "Passat", Rok.produkcji == 2006) %>% 
+  summarise(srCena = mean(Cena.w.PLN),
+            frakcja = count(tanie)/n())
+wynik_15
+```
+
+16. Ze zbioru danych auta2012 wybierz tylko auta wyprodukowane w roku 2007. Następnie policz ile egzemplarzy każdej z marek jest oferowanych do sprzedaży.
+
+Jednym z rozwiązań jest pogrupowanie wybranych danych funkcją group_by() po kolumnie Marka, oraz dla każdej marki wyznaczenie liczby samochodów oferowanych do sprzedaży. Tę liczbę należy przypisać do kolumny count.
+
+Wynik należy posortować tak by marki najczęstsze były na początku ramki danych a najrzadsze na końcu.
+
+Wynik, przypisany do zmiennej wynik powinien być ramką danych o kolumnach Marka i count, w tej drugiej kolumnie znajduje się liczba auta z rocznika 2007 w danej marce. Cała ramka danych jest posortowana malejąco po kolumnie count.
+
+```{r}
+
+wynik_16 <- auta2012 %>% 
+  filter(Rok.produkcji == 2007) %>% 
+  group_by(Marka) %>% 
+  tally() %>% 
+  arrange(desc(n))
+wynik_16
+```
+
+17. Napisz funkcję o nazwie policzSredniaCene, która przyjmuje dwa argumenty marka i rok.
+
+Następnie wybiera ze zbioru danych auta2012 oferty dotyczące samochodów określonej marki o o wskazanym roku produkcji, a jako wynik zwraca średnią cenę z ofert dla określonych parametrów.
+
+Przykładowo, wywołanie policzSredniaCene('Toyota', 2007) jako wynik zwróci wartość 37853.68.
+
+```{r}
+
+policzSredniaCene <- function(marka, rok)
+{
+  wynik_17 <- auta2012 %>% 
+    filter(Marka == marka, Rok.produkcji == rok) %>% 
+    summarise(srCena = mean(Cena.w.PLN))
+  wynik_17
+}
+policzSredniaCene("Toyota", 2007)
+```
+
+18. Na bazie zbioru danych auta2012 policz która makra samochodów miała średnio najwyższą cenę, jeżeli ograniczyć się tylko do samochodów z silnikiem diesla wyprodukowanych w 2006 roku.
+
+Do zmiennej wynik przypisz wyłącznie nazwę tej średnio najdroższej marki.
+
+```{r}
+
+wynik_18 <- auta2012 %>% 
+  filter(Rok.produkcji == 2006, Rodzaj.paliwa == "olej napedowy (diesel)") %>% 
+  group_by(Marka) %>% 
+  summarise(srCena = mean(Cena.w.PLN)) %>% 
+  filter(srCena == max(srCena))
+wynik_18
+```
+
+19. W pakiecie PogromcyDanych dostępny jest zbiór danych diagnoza.
+
+W tym zbiorze danych w kolumnie plec znajduje się informacja o płci respondenta a w kolumnie eduk4_2013 edukacja opisana w jednej z czterech wartości.
+
+Wyznacz tablicę kontyngencji, tak by w kolumnach przedstawione były płcie a w wierszach grupy edukacji. Usuń z tej tabeli wiersze w których występują same wartości 0. Pozostałą tabelę kontyngencji przypisz do zmiennej wynik.
+
+```{r}
+
+my_df <- diagnoza %>% 
+  select(plec, eduk4_2013) %>% 
+  mutate_all(funs(ifelse(. == 0, NA, .))) %>% 
+  filter(complete.cases(.)) 
+table(my_df$eduk4_2013, my_df$plec)
+```
+
+20. W pakiecie PogromcyDanych dostępny jest zbiór danych diagnoza.
+
+W tym zbiorze danych w kolumnie plec znajduje się informacja o płci respondenta a w kolumnie eduk4_2013 edukacja opisana w jednej z czterech wartości.
+
+Wyznacz tablicę kontyngencji i zapisz ją w postaci wąskiej do zmiennej wynik.
+
+W postaci wąskiej, ramka danych powinna mieć trzy kolumny o nazwach: plec, wyksztalcenie, liczba.
+
+W kolejnych wierszach powinny znajdować się informacje dla każdej kombinacji płci i wykształcenia ile było takich respondentów. Przykładowo kobiet w grupie z wykształceniem 'wyższe i policealne' było 3609.
+
+```{r}
+
+wynik_20 <- diagnoza %>% 
+  select(plec, eduk4_2013) %>% 
+  filter(complete.cases(.)) %>% 
+  group_by(plec) %>% 
+  count(eduk4_2013)
+wynik_20
+```
+
+
